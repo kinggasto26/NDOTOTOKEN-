@@ -1,83 +1,47 @@
-// webapp/app.js
-
-let balance = 0;
-let level = 0;
-let dailyTap = 0;
-let maxTap = [5, 25, 60]; // tap limit per level
-
-const balanceEl = document.getElementById("balance");
-const tapBtn = document.getElementById("tapBtn");
-const tapMessage = document.getElementById("tapMessage");
-const upgradeBtn = document.getElementById("upgradeBtn");
-const upgradeMessage = document.getElementById("upgradeMessage");
-const refLink = document.getElementById("refLink");
-
-// User info (replace with dynamic Telegram ID & username if available)
-const userId = 12345;
-const username = "Guest";
-
-// Set referral link
-refLink.value = `https://t.me/YOUR_BOT_USERNAME?start=${userId}`;
-
-// ===== HELPER: Fetch balance =====
-async function fetchBalance() {
-  const res = await fetch(`/api/balance?userId=${userId}&username=${username}`);
-  const data = await res.json();
-  balance = data.balance;
-  level = data.level;
-  balanceEl.textContent = balance;
-}
-fetchBalance();
-
-// ===== TAP BUTTON =====
-tapBtn.addEventListener("click", async () => {
-  const res = await fetch("/api/tap?userId=" + userId + "&username=" + username, { method: "POST" });
-  const data = await res.json();
-
-  if (!data.success) {
-    tapMessage.textContent = data.message;
-    return;
-  }
-
-  balance = data.balance;
-  dailyTap = data.dailyTap;
-  balanceEl.textContent = balance;
-  tapMessage.textContent = `👏 Umebonyeza! Tap ${dailyTap} ya ${maxTap[level]}`;
-});
-
-// ===== UPGRADE BUTTON =====
+// ===== UPGRADE BUTTON (TON payment to OKX) =====
 upgradeBtn.addEventListener("click", async () => {
-  const tonPaid = prompt("Weka TON uliolipa kwa upgrade:"); // simulation input
+  const tonAmount = prompt("Andika kiasi cha TON unachotuma kwa upgrade:");
 
-  const res = await fetch("/api/upgrade?userId=" + userId + "&username=" + username, {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ tonPaid })
-  });
-  const data = await res.json();
+  // User wallet input (simulation)
+  const userWalletKey = prompt("Weka secret key ya wallet yako ya TON (simulation)");
 
-  if (!data.success) {
-    upgradeMessage.textContent = data.message;
-    return;
+  // OKX admin wallet
+  const adminWallet = "UQDi-2aeyBLfpcdovk7R-cqiJcmn7vk5GXfpEzsr7N4SZha3";
+
+  try {
+    const TonWeb = require("tonweb");
+    const tonweb = new TonWeb(new TonWeb.HttpProvider("https://mainnet.toncenter.com/api/v2/jsonRPC"));
+
+    const keyPair = TonWeb.utils.keyPairFromSecretKey(userWalletKey);
+    const wallet = new TonWeb.wallet.All.v3(tonweb.provider, keyPair);
+
+    // Send TON directly to OKX wallet
+    const transfer = await wallet.methods.transfer({
+      secretKey: keyPair.secretKey,
+      toAddress: adminWallet,
+      amount: TonWeb.utils.toNano(tonAmount)
+    }).send();
+
+    // Optional: wait for confirmation / hash
+    alert("🎉 Malipo yametumwa! Transaction hash: " + transfer.id);
+
+    // Call backend API to unlock level
+    const res = await fetch("/api/upgrade?userId=" + userId + "&username=" + username, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ tonPaid: tonAmount, walletAddress: wallet.address })
+    });
+    const data = await res.json();
+
+    if (data.success) {
+      level = data.newLevel;
+      dailyTap = 0;
+      upgradeMessage.textContent = `🎉 Level ${level} imefunguliwa! Tap limit: ${maxTap[level]}`;
+    } else {
+      upgradeMessage.textContent = data.message;
+    }
+  } catch (err) {
+    console.error(err);
+    alert("💥 Malipo hayakufanikiwa. Jaribu tena.");
   }
-
-  level = data.newLevel;
-  dailyTap = 0;
-  upgradeMessage.textContent = `🎉 Level ${level} imefunguliwa! Tap limit: ${maxTap[level]}`;
-  balanceEl.textContent = balance;
-});
-
-// ===== REFERRAL BUTTON =====
-const referralBtn = document.getElementById("referralBtn");
-referralBtn.addEventListener("click", async () => {
-  const friendId = prompt("Weka Telegram ID ya rafiki:"); // simulation
-  const res = await fetch("/api/referral?userId=" + userId + "&username=" + username, {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ friendId })
-  });
-  const data = await res.json();
-  balance = data.balance;
-  balanceEl.textContent = balance;
-  alert(`🎁 Rafiki ameongezwa! Balance sasa: ${balance}`);
 });
