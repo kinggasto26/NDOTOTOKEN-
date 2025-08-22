@@ -5,9 +5,10 @@ const airdropCheckbox = document.getElementById("airdropStatus");
 const claimCheckbox = document.getElementById("claimStatus");
 const saveBtn = document.getElementById("saveSettings");
 
-const userRole = prompt("Andika role yako (admin/worker):"); // simulation ya role
+// Simulation ya role
+const userRole = prompt("Andika role yako (admin/worker):"); // admin = wewe, worker = wachimbaji
 
-// ===== Disable kwa wafanyakazi wa kawaida =====
+// ===== Disable kwa wachimbaji =====
 if (userRole !== "admin") {
   adsCheckbox.disabled = true;
   airdropCheckbox.disabled = true;
@@ -27,6 +28,8 @@ loadSettings();
 
 // ===== Save settings =====
 saveBtn.addEventListener("click", async () => {
+  if (userRole !== "admin") return; // Safety
+
   const body = {
     adsStatus: adsCheckbox.checked,
     airdropStatus: airdropCheckbox.checked,
@@ -45,7 +48,7 @@ saveBtn.addEventListener("click", async () => {
   }
 });
 
-// ===== Live update kwa wafanyakazi =====
+// ===== Live update kwa wachimbaji =====
 if (userRole !== "admin") {
   setInterval(async () => {
     const res = await fetch(`/api/admin/settings?userId=1&username=Admin`);
@@ -53,5 +56,5 @@ if (userRole !== "admin") {
     adsCheckbox.checked = data.settings.adsStatus;
     airdropCheckbox.checked = data.settings.airdropStatus;
     claimCheckbox.checked = data.settings.claimStatus;
-  }, 5000); // update kila 5 seconds
+  }, 5000); // update kila 5 sec
 }
