@@ -1,59 +1,46 @@
 // admin/panel.js
-const { getUser } = require("../src/services/userService");
 
-// Simulation ya settings
-let adsStatus = true;
-let airdropStatus = true;
-let claimStatus = true;
+const adsCheckbox = document.getElementById("adsStatus");
+const airdropCheckbox = document.getElementById("airdropStatus");
+const claimCheckbox = document.getElementById("claimStatus");
+const saveBtn = document.getElementById("saveSettings");
 
-// Simulate login (replace na user id halisi)
-const loggedInUserId = 12345; // admin au ordinary user
+const userRole = prompt("Andika role yako (admin/worker):"); // simulation ya role
 
-async function loadAdminPanel(userId) {
-  const user = await getUser(userId);
-  if (!user || user.role !== "admin") {
-    alert("❌ Huna ufikiaji wa Admin Panel");
-    document.querySelectorAll("button, input").forEach(el => el.disabled = true);
-    return;
-  }
-
-  // Admin anaweza kubadilisha
-  document.querySelectorAll("button, input").forEach(el => el.disabled = false);
+// ===== Disable checkboxes kwa wafanyakazi wa kawaida =====
+if (userRole !== "admin") {
+  adsCheckbox.disabled = true;
+  airdropCheckbox.disabled = true;
+  claimCheckbox.disabled = true;
+  saveBtn.disabled = true;
 }
 
-loadAdminPanel(loggedInUserId);
+// ===== Load settings =====
+async function loadSettings() {
+  const res = await fetch(`/api/admin/settings?userId=1&username=Admin`); // simulation admin
+  const data = await res.json();
+  adsCheckbox.checked = data.settings.adsStatus;
+  airdropCheckbox.checked = data.settings.airdropStatus;
+  claimCheckbox.checked = data.settings.claimStatus;
+}
+loadSettings();
 
-// ON/OFF buttons
-const adsBtn = document.getElementById("adsBtn");
-const airdropBtn = document.getElementById("airdropBtn");
-const claimBtn = document.getElementById("claimBtn");
-const logoInput = document.getElementById("logoInput");
-const bgInput = document.getElementById("bgInput");
-const saveBtn = document.getElementById("saveBtn");
+// ===== Save settings =====
+saveBtn.addEventListener("click", async () => {
+  const body = {
+    adsStatus: adsCheckbox.checked,
+    airdropStatus: airdropCheckbox.checked,
+    claimStatus: claimCheckbox.checked
+  };
 
-adsBtn.addEventListener("click", () => {
-  const user = { role: "admin" }; // kwa prototype
-  if (user.role !== "admin") return;
-  adsStatus = !adsStatus;
-  adsBtn.textContent = adsStatus ? "Ads ON" : "Ads OFF";
-});
+  const res = await fetch("/api/admin/settings?userId=1&username=Admin", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(body)
+  });
 
-airdropBtn.addEventListener("click", () => {
-  const user = { role: "admin" };
-  if (user.role !== "admin") return;
-  airdropStatus = !airdropStatus;
-  airdropBtn.textContent = airdropStatus ? "Airdrop ON" : "Airdrop OFF";
-});
-
-claimBtn.addEventListener("click", () => {
-  const user = { role: "admin" };
-  if (user.role !== "admin") return;
-  claimStatus = !claimStatus;
-  claimBtn.textContent = claimStatus ? "Claim ON" : "Claim OFF";
-});
-
-saveBtn.addEventListener("click", () => {
-  const logo = logoInput.files[0];
-  const bg = bgInput.files[0];
-  alert(`✅ Settings saved!\nLogo: ${logo ? logo.name : "same"}\nBackground: ${bg ? bg.name : "same"}`);
+  const data = await res.json();
+  if (data.success) {
+    alert("🎉 Settings zimehifadhiwa!");
+  }
 });
