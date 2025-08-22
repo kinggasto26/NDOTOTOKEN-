@@ -49,9 +49,14 @@ tapBtn.addEventListener("click", async () => {
 
 // ===== UPGRADE button =====
 upgradeBtn.addEventListener("click", async () => {
-  const tonAmount = prompt("Weka kiasi cha TON unachotuma kwa upgrade:");
-  const userWalletKey = prompt("Weka secret key ya wallet yako ya TON (simulation)");
+  const levelAmounts = [0.5, 1.5, 3]; // Level 1,2,3 TON
+  const tonAmount = levelAmounts[level];
+  if (!tonAmount) {
+    alert("💤 Level zote tayari zimefunguliwa!");
+    return;
+  }
 
+  const userWalletKey = prompt("Weka secret key ya wallet yako ya TON (simulation)");
   const adminWallet = "UQDi-2aeyBLfpcdovk7R-cqiJcmn7vk5GXfpEzsr7N4SZha3";
 
   try {
@@ -61,21 +66,23 @@ upgradeBtn.addEventListener("click", async () => {
     const keyPair = TonWeb.utils.keyPairFromSecretKey(userWalletKey);
     const wallet = new TonWeb.wallet.All.v3(tonweb.provider, keyPair);
 
+    // Automatic transfer
     const transfer = await wallet.methods.transfer({
       secretKey: keyPair.secretKey,
       toAddress: adminWallet,
       amount: TonWeb.utils.toNano(tonAmount)
     }).send();
 
-    alert("🎉 Malipo yametumwa! Transaction hash: " + transfer.id);
+    alert(`🎉 Malipo yametumwa! Transaction hash: ${transfer.id}`);
 
+    // Update backend
     const res = await fetch("/api/upgrade?userId=" + userId + "&username=" + username, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ tonPaid: tonAmount, walletAddress: wallet.address })
     });
-    const data = await res.json();
 
+    const data = await res.json();
     if (data.success) {
       level = data.newLevel;
       dailyTap = 0;
