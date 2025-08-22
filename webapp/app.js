@@ -1,4 +1,5 @@
 // webapp/app.js
+
 let balance = 0;
 let level = 0;
 let dailyTap = 0;
@@ -14,23 +15,38 @@ const refLink = document.getElementById("refLink");
 // Set referral link
 refLink.value = "https://t.me/YOUR_BOT_USERNAME?start=12345";
 
-tapBtn.addEventListener("click", () => {
+// ===== TAP BUTTON LOGIC (simulation) =====
+async function sendTap() {
+  // Simulation ya backend call
+  return { success: true, balance: balance + 1 };
+}
+
+tapBtn.addEventListener("click", async () => {
   if (dailyTap >= maxTap[level]) {
     tapMessage.textContent = "Umefika kipimo cha taps cha level yako!";
     return;
   }
 
-  dailyTap += 1;
-  balance += 1;
-  balanceEl.textContent = balance;
-  tapMessage.textContent = `👏 Umebonyeza! Tap ${dailyTap} ya ${maxTap[level]}`;
+  const response = await sendTap();
+  if (response.success) {
+    dailyTap += 1;
+    balance = response.balance;
+    balanceEl.textContent = balance;
+    tapMessage.textContent = `👏 Umebonyeza! Tap ${dailyTap} ya ${maxTap[level]}`;
+  }
 });
 
-upgradeBtn.addEventListener("click", () => {
-  const nextLevel = level + 1;
-  const tonRequired = nextLevel === 1 ? 0.5 : 1.5;
-  // Simulation: automatically approve payment
-  level = nextLevel;
-  dailyTap = 0;
-  upgradeMessage.textContent = `🎉 Level ${level} imefunguliwa! Tap limit: ${maxTap[level]}`;
+// ===== UPGRADE BUTTON LOGIC (simulation) =====
+async function upgradeLevelFront() {
+  // Simulation ya TON payment verification
+  return { success: true, newLevel: level + 1 };
+}
+
+upgradeBtn.addEventListener("click", async () => {
+  const res = await upgradeLevelFront();
+  if (res.success) {
+    level = res.newLevel;
+    dailyTap = 0;
+    upgradeMessage.textContent = `🎉 Level ${level} imefunguliwa! Tap limit: ${maxTap[level]}`;
+  }
 });
