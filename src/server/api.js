@@ -1,81 +1,98 @@
 // src/server/api.js
+
 const express = require("express");
-const { getUser, createUser } = require("../models/User");
-
 const router = express.Router();
+const { verifyPayment } = require("../services/paymentService");
 
-// ===== Simulate database in-memory =====
-let settings = {
+// ======== Simulated DB =========
+let users = {}; // { userId: { username, balance, level, dailyTapCount } }
+let adminSettings = {
   adsStatus: true,
   airdropStatus: true,
   claimStatus: true
 };
 
-// Middleware ya user creation
-router.use(async (req, res, next) => {
-  const userId = parseInt(req.query.userId);
-  const username = req.query.username || "Guest";
-  if (!userId) return res.status(400).send("userId required");
-  req.user = await createUser(userId, username);
+// ======== Middleware to get or create user =========
+router.use((req, res, next) => {
+  const userId = req.query.userId || req.body.userId;
+  const username = req.query.username || req.body.username || "Guest";
+
+  if (!users[userId]) {
+    users[userId] = {
+      username,
+      balance: 0,
+      level: 0,
+      dailyTapCount: 0
+    };
+  }
+
+  req.user = users[userId];
   next();
 });
 
-// ===== GET USER =====
-router.get("/balance", async (req, res) => {
-  res.json({ balance: req.user.balance, level: req.user.level });
-});
+// ======== TAP endpoint =========
+router.post("/tap", (req, res) => {
+  const user = req.user;
+  const maxTap = [5, 25, 60];
 
-// ===== TAP BUTTON =====
-router.post("/tap", async (req, res) => {
-  if (!req.user.dailyTapCount) req.user.dailyTapCount = 0;
-
-  // Limit per level
-  const maxTapLevel = [5, 25, 60];
-  if (req.user.dailyTapCount >= maxTapLevel[req.user.level]) {
-    return res.json({ success: false, message: "Daily tap limit reached" });
+  if (user.dailyTapCount >= maxTap[user.level]) {
+    return res.json({ success: false, message: "💤 Umefikia tap limit kwa leo" });
   }
 
-  req.user.dailyTapCount += 1;
-  req.user.balance += 1; // 1 NDT per tap (simulation)
-  res.json({ success: true, balance: req.user.balance, dailyTap: req.user.dailyTapCount });
+  user.dailyTapCount += 1;
+  user.balance += 1; // 1 NDT per tap
+  res.json({ success: true, balance: user.balance, dailyTap: user.dailyTapCount });
 });
 
-// ===== UPGRADE LEVEL =====
+// ======== UPGRADE endpoint =========
 router.post("/upgrade", async (req, res) => {
-  const requiredTON = [0.5, 1.5]; // level 1 = 0.5 TON, level2 = 1.5 TON
-  const level = req.user.level;
-  const payment = parseFloat(req.body.tonPaid);
+  const user = req.user;
+  const level = user.level;
+  const requiredTON = [0.5, 1.5, 3]; // example: level 1 = 0.5 TON, level2 = 1.5 TON
 
-  if (payment < requiredTON[level]) {
-    return res.json({ success: false, message: "Insufficient TON for upgrade" });
-  }
+  const { tonPaid, walletAddress } = req.body;
 
-  req.user.level += 1;
-  req.user.dailyTapCount = 0;
-  res.json({ success: true, newLevel: req.user.level });
+  // Verify transaction on TON blockchain
+  const paid = await verifyPayment(walletAddress, tonPaid);
+
+  if (!paid) return res.json({ success: false, message: "Payment not received on TON" });
+  if (tonPaid < requiredTON[level]) return res.json({ success: false, message: "Insufficient TON paid" });
+
+  user.level += 1;
+  user.dailyTapCount = 0;
+
+  res.json({ success: true, newLevel: user.level });
 });
 
-// ===== REFERRALS =====
-router.post("/referral", async (req, res) => {
-  const friendId = parseInt(req.body.friendId);
-  if (!req.user.referrals.includes(friendId)) {
-    req.user.referrals.push(friendId);
-    req.user.balance += 1; // 1 NDT bonus per referral (simulation)
+// ======== REFERRAL endpoint =========
+router.post("/referral", (req, res) => {
+  const user = req.user;
+  const { friendId } = req.body;
+
+  if (!users[friendId]) {
+    users[friendId] = { username: "Friend", balance: 0, level: 0, dailyTapCount: 0 };
   }
-  res.json({ success: true, balance: req.user.balance, referrals: req.user.referrals });
+
+  user.balance += 1; // referral reward
+  users[friendId].balance += 1; // friend reward
+
+  res.json({ success: true, balance: user.balance });
 });
 
-// ===== ADMIN SETTINGS =====
-router.post("/admin/settings", async (req, res) => {
-  const role = req.user.role;
-  if (role !== "admin") return res.status(403).send("Access denied");
+// ======== BALANCE endpoint =========
+router.get("/balance", (req, res) => {
+  const user = req.user;
+  res.json({ balance: user.balance, level: user.level, dailyTap: user.dailyTapCount });
+});
 
-  const { adsStatus, airdropStatus, claimStatus } = req.body;
-  settings.adsStatus = adsStatus;
-  settings.airdropStatus = airdropStatus;
-  settings.claimStatus = claimStatus;
+// ======== ADMIN SETTINGS endpoint =========
+router.get("/admin/settings", (req, res) => {
+  res.json({ settings: adminSettings });
+});
 
-  res.json({ success: true, settings });
+router.post("/admin/settings", (req, res) => {
+  adminSettings = { ...adminSettings, ...req.body };
+  res.json({ success: true, settings: adminSettings });
 });
 
 module.exports = router;
