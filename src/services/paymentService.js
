@@ -1,0 +1,45 @@
+// src/services/paymentService.js
+const { getUser } = require("./userService");
+
+// Define TON amount required for each level
+const levelCost = {
+  1: 0.5,  // Level 1 costs 0.5 TON
+  2: 1.5   // Level 2 costs 1.5 TON
+};
+
+// Define daily tap limit per level
+const tapLimits = {
+  0: 5,
+  1: 25,
+  2: 60
+};
+
+// Simulate payment verification (replace na real TON API baadaye)
+async function verifyTonPayment(userId, amount) {
+  // Kwa prototype, tunadhani malipo yote yanathibitishwa
+  return true;
+}
+
+async function upgradeLevel(userId) {
+  const user = await getUser(userId);
+  if (!user) return "User haipo. Tafadhali anza bot kwanza kwa /start";
+
+  const nextLevel = user.level + 1;
+  if (!levelCost[nextLevel]) return "Huna level inayofuata.";
+
+  const requiredTON = levelCost[nextLevel];
+  const paid = await verifyTonPayment(userId, requiredTON);
+
+  if (!paid) return `Malipo ya ${requiredTON} TON hayajathibitishwa. Level haiwezi kufunguka.`;
+
+  // Update level
+  user.level = nextLevel;
+  user.tonPaidForLevel = requiredTON;
+
+  return `🎉 Level ${nextLevel} imefunguliwa! Tap limit yako sasa ni ${tapLimits[nextLevel]} kwa siku.`;
+}
+
+module.exports = {
+  upgradeLevel,
+  verifyTonPayment
+};
