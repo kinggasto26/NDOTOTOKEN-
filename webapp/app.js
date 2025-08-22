@@ -179,3 +179,28 @@ async function checkClaimStatus() {
 
 // Check claim status kila 5 sekunde
 setInterval(checkClaimStatus, 5000);
+// ===== LIVE UPDATE KUTOKA ADMIN =====
+async function fetchAdminSettings() {
+  const res = await fetch("/api/admin/settings?userId=1&username=Admin");
+  const data = await res.json();
+  return data.settings;
+}
+
+async function liveUpdateFromAdmin() {
+  const settings = await fetchAdminSettings();
+
+  // Update ads
+  const adsEl = document.getElementById("adsStatusDisplay");
+  if (adsEl) adsEl.textContent = settings.adsStatus ? "✅ ON" : "❌ OFF";
+
+  // Update airdrop
+  const airdropEl = document.getElementById("airdropStatusDisplay");
+  if (airdropEl) airdropEl.textContent = settings.airdropStatus ? "✅ ON" : "❌ OFF";
+
+  // Update claim
+  const claimEl = document.getElementById("claimStatusDisplay");
+  if (claimEl) claimEl.textContent = settings.claimStatus ? "✅ ON" : "❌ OFF";
+}
+
+// Check kila 5 sekunde
+setInterval(liveUpdateFromAdmin, 5000);
