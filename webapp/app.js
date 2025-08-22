@@ -12,6 +12,8 @@ const upgradeBtn = document.getElementById("upgradeBtn");
 const upgradeMessage = document.getElementById("upgradeMessage");
 const refLink = document.getElementById("refLink");
 const referralBtn = document.getElementById("referralBtn");
+const claimBtn = document.getElementById("claimBtn");
+const claimMessage = document.getElementById("claimMessage");
 
 const userId = 12345;
 const username = "Guest";
@@ -104,3 +106,69 @@ referralBtn.addEventListener("click", async () => {
   balanceEl.textContent = balance;
   alert(`🎁 Rafiki ameongezwa! Balance sasa: ${balance}`);
 });
+
+// ===== CLAIM button =====
+async function fetchAdminSettings() {
+  const res = await fetch("/api/admin/settings?userId=1&username=Admin");
+  const data = await res.json();
+  return data.settings;
+}
+
+claimBtn.addEventListener("click", async () => {
+  const settings = await fetchAdminSettings();
+
+  if (!settings.claimStatus) {
+    claimMessage.textContent = "⚠️ Claim haijaweza kufunguliwa bado. Subiri tangazo la admin.";
+    return;
+  }
+
+  // Claim logic
+  const res = await fetch("/api/claim?userId=" + userId + "&username=" + username, { method: "POST" });
+  const data = await res.json();
+
+  if (data.success) {
+    claimMessage.textContent = `🎉 Claim imefanikiwa! Balance sasa: ${data.balance}`;
+    balance = data.balance;
+    balanceEl.textContent = balance;
+  } else {
+    claimMessage.textContent = data.message;
+  }
+});
+
+// ===== LIVE CLAIM NOTIFICATION =====
+async function checkClaimStatus() {
+  const settings = await fetchAdminSettings();
+
+  if (settings.claimStatus) {
+    // Create popup if not exists
+    if (!document.getElementById("claimPopup")) {
+      const popup = document.createElement("div");
+      popup.id = "claimPopup";
+      popup.style.position = "fixed";
+      popup.style.bottom = "20px";
+      popup.style.right = "20px";
+      popup.style.background = "#fffae6";
+      popup.style.border = "2px solid #f5c518";
+      popup.style.padding = "15px";
+      popup.style.borderRadius = "10px";
+      popup.style.boxShadow = "0 0 10px rgba(0,0,0,0.3)";
+      popup.style.zIndex = 1000;
+      popup.innerHTML = `
+        ⚡ Tangazo la Claim! Claim sasa inapatikana. Bonyeza button ya claim ili upate TOKENI. 
+        <button id="claimPopupBtn" style="margin-left:10px;padding:5px 10px;">Claim Sasa</button>
+      `;
+      document.body.appendChild(popup);
+
+      document.getElementById("claimPopupBtn").addEventListener("click", () => {
+        claimBtn.click(); // trigger existing claim logic
+        popup.remove();
+      });
+    }
+  } else {
+    const existing = document.getElementById("claimPopup");
+    if (existing) existing.remove();
+  }
+}
+
+// Check claim status kila 5 sekunde
+setInterval(checkClaimStatus, 5000);
