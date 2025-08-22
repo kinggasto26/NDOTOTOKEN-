@@ -3,39 +3,57 @@
 <head>
   <meta charset="UTF-8">
   <title>Ndoto Token Tap-to-Earn</title>
-  <link rel="stylesheet" href="style.css">
+  <style>
+    body { font-family: Arial, sans-serif; background: #f0f2f5; padding: 20px; }
+    .card { background: #fff; padding: 20px; margin-bottom: 15px; border-radius: 10px; box-shadow: 0 0 10px rgba(0,0,0,0.1);}
+    button { padding: 10px 20px; border: none; border-radius: 8px; cursor: pointer; background: #4CAF50; color: white; margin-top: 10px;}
+    button:hover { background: #45a049; }
+    input { padding: 8px; border-radius: 5px; border: 1px solid #ccc; width: 100%; }
+    #claimMessage, #tapMessage, #upgradeMessage { margin-top: 10px; font-weight: bold; color: #333; }
+    #balanceDisplay { font-size: 20px; font-weight: bold; }
+  </style>
 </head>
 <body>
-  <div class="container">
-    <header>
-      <img src="assets/logo.png" alt="Ndoto Token Logo" class="logo">
-      <h1>Ndoto Token Tap-to-Earn</h1>
-    </header>
 
-    <section class="balance-section">
-      <h2>💰 Balance: <span id="balance">0</span> NDT</h2>
-    </section>
+  <h1>Ndoto Token Tap-to-Earn</h1>
 
-    <section class="tap-section">
-      <button id="tapBtn">👏 TAP</button>
-      <p id="tapMessage"></p>
-    </section>
-
-    <section class="upgrade-section">
-      <button id="upgradeBtn">⬆️ Upgrade Level</button>
-      <p id="upgradeMessage"></p>
-    </section>
-
-    <section class="referral-section">
-      <h3>Referral Link:</h3>
-      <input type="text" id="refLink" readonly>
-    </section>
-
-    <footer>
-      <p>Ndoto Token Testnet</p>
-    </footer>
+  <div class="card">
+    <p>Balance: <span id="balance">0</span> NDT</p>
+    <p>Level: <span id="level">0</span></p>
   </div>
 
+  <div class="card">
+    <button id="tapBtn">Tap to Earn</button>
+    <p id="tapMessage"></p>
+  </div>
+
+  <div class="card">
+    <button id="upgradeBtn">Upgrade Level</button>
+    <p id="upgradeMessage"></p>
+  </div>
+
+  <div class="card">
+    <p>Referral Link:</p>
+    <input type="text" id="refLink" readonly>
+    <button id="referralBtn">Send Referral</button>
+  </div>
+
+  <div class="card">
+    <button id="claimBtn">Claim Token</button>
+    <p id="claimMessage"></p>
+  </div>
+
+  <div class="card">
+    <h3>Live Status</h3>
+    <p>Ads Status: <span id="adsStatusDisplay">❌ OFF</span></p>
+    <p>Airdrop Status: <span id="airdropStatusDisplay">❌ OFF</span></p>
+    <p>Claim Status: <span id="claimStatusDisplay">❌ OFF</span></p>
+  </div>
+
+  <!-- Popup container -->
+  <div id="claimPopupContainer"></div>
+
   <script src="app.js"></script>
+
 </body>
 </html>
