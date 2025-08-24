@@ -2,6 +2,13 @@
 let balance = 0;
 let level = 0;
 
+// ================== Levels Config ==================
+const levels = {
+  0: { cost: 0, maxTaps: 5, reward: 1 },
+  1: { cost: 0.5, maxTaps: 25, reward: 1 },
+  2: { cost: 1.5, maxTaps: 60, reward: 1 },
+};
+
 // ================== TAP FUNCTION ==================
 async function sendTap() {
   try {
@@ -15,8 +22,7 @@ async function sendTap() {
     if (data.success) {
       balance = data.balance;
       level = data.level;
-      document.getElementById("balance").innerText = balance;
-      document.getElementById("level").innerText = level;
+      updateUI();
     } else {
       alert(data.message || "Tap haikufanikiwa");
     }
@@ -27,20 +33,32 @@ async function sendTap() {
 
 // ================== UPGRADE FUNCTION ==================
 async function upgradeLevel() {
+  const nextLevel = level + 1;
+  const levelInfo = levels[nextLevel];
+
+  if (!levelInfo) {
+    alert("Hakuna level zaidi ✅");
+    return;
+  }
+
+  const paymentAmount = parseFloat(prompt(`Lipa ${levelInfo.cost} TON kwa upgrade hadi Level ${nextLevel}`));
+  if (isNaN(paymentAmount) || paymentAmount < levelInfo.cost) {
+    alert("Payment haikutosha");
+    return;
+  }
+
   try {
     const res = await fetch("/api/upgrade", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ userId: "user1" }) // TODO: badilisha na Telegram userId
+      body: JSON.stringify({ userId: "user1", paymentAmount })
     });
     const data = await res.json();
 
     if (data.success) {
-      balance = data.balance;
       level = data.level;
-      document.getElementById("balance").innerText = balance;
-      document.getElementById("level").innerText = level;
-      alert("Hongera 🎉 umeupgrade hadi level " + level);
+      updateUI();
+      alert(data.message);
     } else {
       alert(data.message || "Upgrade haikufanikiwa");
     }
@@ -61,7 +79,7 @@ async function claimTokens() {
 
     if (data.success) {
       balance = data.balance;
-      document.getElementById("balance").innerText = balance;
+      updateUI();
       alert(`Umeclaim ${data.reward} NDT 🎁`);
     } else {
       alert(data.message || "Claim haikufanikiwa");
@@ -71,6 +89,12 @@ async function claimTokens() {
   }
 }
 
+// ================== UPDATE UI ==================
+function updateUI() {
+  document.getElementById("balance").innerText = balance;
+  document.getElementById("level").innerText = level;
+}
+
 // ================== LOAD ADMIN SETTINGS ==================
 async function loadSettings() {
   try {
@@ -78,27 +102,20 @@ async function loadSettings() {
     const settings = await res.json();
 
     // Ads
-    if (settings.ads) {
-      document.getElementById("adsSection").style.display = "block";
-    } else {
-      document.getElementById("adsSection").style.display = "none";
-    }
+    document.getElementById("adsSection").style.display = settings.ads ? "block" : "none";
 
     // Claim
+    const claimBtn = document.getElementById("claimBtn");
     if (settings.claim) {
-      document.getElementById("claimBtn").disabled = false;
-      document.getElementById("claimBtn").innerText = "Claim Now 🎁";
+      claimBtn.disabled = false;
+      claimBtn.innerText = "Claim Now 🎁";
     } else {
-      document.getElementById("claimBtn").disabled = true;
-      document.getElementById("claimBtn").innerText = "Claim imezimwa ⛔";
+      claimBtn.disabled = true;
+      claimBtn.innerText = "Claim imezimwa ⛔";
     }
 
     // Airdrop
-    if (settings.airdrop) {
-      document.getElementById("airdropSection").style.display = "block";
-    } else {
-      document.getElementById("airdropSection").style.display = "none";
-    }
+    document.getElementById("airdropSection").style.display = settings.airdrop ? "block" : "none";
   } catch (err) {
     console.error("Failed to load admin settings:", err);
   }
@@ -107,4 +124,5 @@ async function loadSettings() {
 // ================== INITIAL LOAD ==================
 window.onload = () => {
   loadSettings();
+  updateUI();
 };
