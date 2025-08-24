@@ -4,11 +4,14 @@ const router = express.Router();
 // ================== In-memory database ==================
 let users = {}; // userId => { balance, level, tapsToday, lastTapDate }
 
+// Admin wallet (malipo ya upgrades)
+const adminWallet = "OKX_ADMIN_WALLET_ADDRESS";
+
 // ================== Levels Config ==================
 const levels = {
   0: { cost: 0, maxTaps: 5, reward: 1 },       // Free
-  1: { cost: 0.5, maxTaps: 25, reward: 1 },    // Requires TON 0.5
-  2: { cost: 1.5, maxTaps: 60, reward: 1 },    // Requires TON 1.5
+  1: { cost: 0.5, maxTaps: 25, reward: 1 },    // Requires 0.5 TON
+  2: { cost: 1.5, maxTaps: 60, reward: 1 },    // Requires 1.5 TON
 };
 
 // ================== Helpers ==================
@@ -45,9 +48,9 @@ router.post("/tap", (req, res) => {
   res.json({ success: true, balance: user.balance, level: user.level });
 });
 
-// ---- Upgrade ----
-router.post("/upgrade", (req, res) => {
-  const { userId } = req.body;
+// ---- Upgrade with TON payment ----
+router.post("/upgrade", async (req, res) => {
+  const { userId, paymentAmount } = req.body; // paymentAmount in TON
   if (!userId) return res.json({ success: false, message: "Missing userId" });
 
   if (!users[userId]) {
@@ -62,14 +65,19 @@ router.post("/upgrade", (req, res) => {
   }
 
   const cost = levels[nextLevel].cost;
-  if (user.balance < cost) {
+
+  // Check if user sent enough TON
+  if (!paymentAmount || paymentAmount < cost) {
     return res.json({ success: false, message: `Unahitaji ${cost} TON kwa upgrade hii` });
   }
 
-  user.balance -= cost;
+  // Simulate sending TON to admin wallet
+  console.log(`💰 Received ${paymentAmount} TON from ${userId}, sending to admin wallet: ${adminWallet}`);
+
+  // Upgrade user level
   user.level = nextLevel;
 
-  res.json({ success: true, balance: user.balance, level: user.level });
+  res.json({ success: true, level: user.level, message: `Level ${nextLevel} imefunguka ✅` });
 });
 
 // ---- Claim ----
