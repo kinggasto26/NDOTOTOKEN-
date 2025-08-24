@@ -1,60 +1,43 @@
-// admin/panel.js
-
-const adsCheckbox = document.getElementById("adsStatus");
-const airdropCheckbox = document.getElementById("airdropStatus");
-const claimCheckbox = document.getElementById("claimStatus");
-const saveBtn = document.getElementById("saveSettings");
-
-// Simulation ya role
-const userRole = prompt("Andika role yako (admin/worker):"); // admin = wewe, worker = wachimbaji
-
-// ===== Disable kwa wachimbaji =====
-if (userRole !== "admin") {
-  adsCheckbox.disabled = true;
-  airdropCheckbox.disabled = true;
-  claimCheckbox.disabled = true;
-  saveBtn.disabled = true;
-}
-
-// ===== Load settings =====
+// Load current settings
 async function loadSettings() {
-  const res = await fetch(`/api/admin/settings?userId=1&username=Admin`);
-  const data = await res.json();
-  adsCheckbox.checked = data.settings.adsStatus;
-  airdropCheckbox.checked = data.settings.airdropStatus;
-  claimCheckbox.checked = data.settings.claimStatus;
+  try {
+    const res = await fetch("/api/admin/settings");
+    const settings = await res.json();
+
+    document.getElementById("adsCheckbox").checked = settings.ads;
+    document.getElementById("claimCheckbox").checked = settings.claim;
+    document.getElementById("airdropCheckbox").checked = settings.airdrop;
+    document.getElementById("logoInput").value = settings.logo || "";
+    document.getElementById("bgInput").value = settings.background || "";
+  } catch (err) {
+    console.error("Failed to load admin settings:", err);
+  }
 }
-loadSettings();
 
-// ===== Save settings =====
-saveBtn.addEventListener("click", async () => {
-  if (userRole !== "admin") return; // Safety
-
-  const body = {
-    adsStatus: adsCheckbox.checked,
-    airdropStatus: airdropCheckbox.checked,
-    claimStatus: claimCheckbox.checked
+// Save updated settings
+async function saveSettings() {
+  const data = {
+    ads: document.getElementById("adsCheckbox").checked,
+    claim: document.getElementById("claimCheckbox").checked,
+    airdrop: document.getElementById("airdropCheckbox").checked,
+    logo: document.getElementById("logoInput").value,
+    background: document.getElementById("bgInput").value
   };
 
-  const res = await fetch("/api/admin/settings?userId=1&username=Admin", {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify(body)
-  });
-
-  const data = await res.json();
-  if (data.success) {
-    alert("🎉 Settings zimehifadhiwa!");
+  try {
+    const res = await fetch("/api/admin/update", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(data)
+    });
+    const result = await res.json();
+    if (result.success) alert("Settings zimehifadhiwa ✅");
+  } catch (err) {
+    console.error("Save settings error:", err);
   }
-});
-
-// ===== Live update kwa wachimbaji =====
-if (userRole !== "admin") {
-  setInterval(async () => {
-    const res = await fetch(`/api/admin/settings?userId=1&username=Admin`);
-    const data = await res.json();
-    adsCheckbox.checked = data.settings.adsStatus;
-    airdropCheckbox.checked = data.settings.airdropStatus;
-    claimCheckbox.checked = data.settings.claimStatus;
-  }, 5000); // update kila 5 sec
 }
+
+// Initial load
+window.onload = () => {
+  loadSettings();
+};
