@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Admin Panel - Ndoto Token</title>
+  <script src="panel.js" defer></script>
+  <style>
+    body { font-family: Arial; margin: 20px; }
+    .section { margin-bottom: 20px; padding: 15px; background: #f4f4f4; border-radius: 8px; }
+    label { margin-right: 10px; }
+    input[type="text"] { padding: 5px; width: 300px; }
+    button { padding: 10px 20px; cursor: pointer; border-radius: 6px; background: #2196f3; color: white; border: none; }
+  </style>
+</head>
+<body>
+  <h1>Admin Panel - Ndoto Token</h1>
+
+  <div class="section">
+    <h3>Settings</h3>
+    <label>Ads:</label>
+    <input type="checkbox" id="adsCheckbox"><br><br>
+
+    <label>Claim:</label>
+    <input type="checkbox" id="claimCheckbox"><br><br>
+
+    <label>Airdrop:</label>
+    <input type="checkbox" id="airdropCheckbox"><br><br>
+
+    <label>Logo URL:</label>
+    <input type="text" id="logoInput"><br><br>
+
+    <label>Background URL:</label>
+    <input type="text" id="bgInput"><br><br>
+
+    <button onclick="saveSettings()">Save Settings</button>
+  </div>
+
+</body>
+</html>
