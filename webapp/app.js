@@ -204,3 +204,39 @@ async function liveUpdateFromAdmin() {
 
 // Check kila 5 sekunde
 setInterval(liveUpdateFromAdmin, 5000);
+
+// ================== SETTINGS FROM ADMIN ==================
+async function loadSettings() {
+  try {
+    const res = await fetch("/api/admin/settings");
+    const settings = await res.json();
+
+    // Ads
+    if (settings.ads) {
+      document.getElementById("adsSection").style.display = "block";
+    } else {
+      document.getElementById("adsSection").style.display = "none";
+    }
+
+    // Claim
+    if (settings.claim) {
+      document.getElementById("claimBtn").disabled = false;
+      document.getElementById("claimBtn").innerText = "Claim Now 🎁";
+    } else {
+      document.getElementById("claimBtn").disabled = true;
+      document.getElementById("claimBtn").innerText = "Claim imezimwa ⛔";
+    }
+
+    // Airdrop
+    if (settings.airdrop) {
+      document.getElementById("airdropSection").style.display = "block";
+    } else {
+      document.getElementById("airdropSection").style.display = "none";
+    }
+  } catch (err) {
+    console.error("Failed to load admin settings:", err);
+  }
+}
+
+// Call when app loads
+loadSettings();
