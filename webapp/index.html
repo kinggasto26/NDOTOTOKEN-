@@ -2,58 +2,79 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title>Ndoto Token Tap-to-Earn</title>
+  <title>Ndoto Token WebApp</title>
+  <script src="app.js" defer></script>
   <style>
-    body { font-family: Arial, sans-serif; background: #f0f2f5; padding: 20px; }
-    .card { background: #fff; padding: 20px; margin-bottom: 15px; border-radius: 10px; box-shadow: 0 0 10px rgba(0,0,0,0.1);}
-    button { padding: 10px 20px; border: none; border-radius: 8px; cursor: pointer; background: #4CAF50; color: white; margin-top: 10px;}
-    button:hover { background: #45a049; }
-    input { padding: 8px; border-radius: 5px; border: 1px solid #ccc; width: 100%; }
-    #claimMessage, #tapMessage, #upgradeMessage { margin-top: 10px; font-weight: bold; color: #333; }
-    #balanceDisplay { font-size: 20px; font-weight: bold; }
+    body {
+      font-family: Arial, sans-serif;
+      text-align: center;
+      margin: 20px;
+      background: #f4f4f4;
+    }
+    h1 {
+      color: #333;
+    }
+    button {
+      padding: 12px 20px;
+      margin: 10px;
+      border: none;
+      border-radius: 8px;
+      font-size: 16px;
+      cursor: pointer;
+    }
+    #tapBtn {
+      background: #4caf50;
+      color: white;
+    }
+    #upgradeBtn {
+      background: #2196f3;
+      color: white;
+    }
+    #claimBtn {
+      background: #ff9800;
+      color: white;
+    }
+    .section {
+      margin-top: 20px;
+      padding: 15px;
+      background: white;
+      border-radius: 8px;
+      box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+    }
   </style>
 </head>
 <body>
+  <h1>🌍 Ndoto Token (NDT)</h1>
 
-  <h1>Ndoto Token Tap-to-Earn</h1>
-
-  <div class="card">
-    <p>Balance: <span id="balance">0</span> NDT</p>
-    <p>Level: <span id="level">0</span></p>
+  <!-- Balance -->
+  <div class="section">
+    <p>💰 Balance: <span id="balance">0</span> NDT</p>
+    <p>⚡ Level: <span id="level">0</span></p>
   </div>
 
-  <div class="card">
-    <button id="tapBtn">Tap to Earn</button>
-    <p id="tapMessage"></p>
+  <!-- Tap Button -->
+  <div class="section">
+    <button id="tapBtn" onclick="sendTap()">👆 Tap</button>
   </div>
 
-  <div class="card">
-    <button id="upgradeBtn">Upgrade Level</button>
-    <p id="upgradeMessage"></p>
+  <!-- Upgrade Button -->
+  <div class="section">
+    <button id="upgradeBtn" onclick="upgradeLevel()">⚡ Upgrade</button>
   </div>
 
-  <div class="card">
-    <p>Referral Link:</p>
-    <input type="text" id="refLink" readonly>
-    <button id="referralBtn">Send Referral</button>
+  <!-- Ads Section -->
+  <div id="adsSection" class="section" style="display:none;">
+    <p>📢 Tangazo hapa litakuja...</p>
   </div>
 
-  <div class="card">
-    <button id="claimBtn">Claim Token</button>
-    <p id="claimMessage"></p>
+  <!-- Airdrop Section -->
+  <div id="airdropSection" class="section" style="display:none;">
+    <p>🎉 Jiunge na airdrop yetu leo!</p>
   </div>
 
-  <div class="card">
-    <h3>Live Status</h3>
-    <p>Ads Status: <span id="adsStatusDisplay">❌ OFF</span></p>
-    <p>Airdrop Status: <span id="airdropStatusDisplay">❌ OFF</span></p>
-    <p>Claim Status: <span id="claimStatusDisplay">❌ OFF</span></p>
+  <!-- Claim Button -->
+  <div class="section">
+    <button id="claimBtn" onclick="claimTokens()">Claim</button>
   </div>
-
-  <!-- Popup container -->
-  <div id="claimPopupContainer"></div>
-
-  <script src="app.js"></script>
-
 </body>
 </html>
