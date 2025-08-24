@@ -28,3 +28,21 @@ app.get("/", (req, res) => {
 app.listen(PORT, () => {
   console.log(`Server running on http://localhost:${PORT}`);
 });
+// ===== Admin Settings Routes =====
+let adminSettings = {
+  ads: false,
+  airdrop: false,
+  claim: false,
+};
+
+// Get current settings
+app.get("/api/admin/settings", (req, res) => {
+  res.json(adminSettings);
+});
+
+// Update settings
+app.post("/api/admin/settings", (req, res) => {
+  const { ads, airdrop, claim } = req.body;
+  adminSettings = { ads, airdrop, claim };
+  res.json({ success: true, settings: adminSettings });
+});
