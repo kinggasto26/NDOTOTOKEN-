@@ -1,0 +1,10 @@
+version: 1
+name: ndoto-token-webapp
+build:
+  command: npm run build
+  output: .next
+  env:
+    NEXT_PUBLIC_TON_WALLET: $NEXT_PUBLIC_TON_WALLET
+    NEXT_PUBLIC_APP_NAME: $NEXT_PUBLIC_APP_NAME
+    NEXT_PUBLIC_BOT_USERNAME: $NEXT_PUBLIC_BOT_USERNAME
+    NEXT_PUBLIC_DEFAULT_LANG: $NEXT_PUBLIC_DEFAULT_LANG
