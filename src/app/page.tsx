@@ -11,7 +11,7 @@ import MainnetBanner from "@/components/MainnetBanner";
 export default function Dashboard() {
   const { t, lang, setLang } = useLanguage();
   const [balance, setBalance] = useState(0);
-  const [tapsLeft, setTapsLeft] = useState(5); // Level 0 max taps
+  const [tapsLeft, setTapsLeft] = useState(5);
   const [showUpgrade, setShowUpgrade] = useState(false);
 
   const handleTap = () => {
@@ -22,30 +22,38 @@ export default function Dashboard() {
   };
 
   return (
-    <div className="flex flex-col items-center p-6 text-center space-y-6">
-      <h1 className="text-2xl font-bold">{t("welcome")}</h1>
+    <div className="flex flex-col items-center p-4 space-y-4 max-w-md mx-auto">
+      <h1 className="text-xl sm:text-2xl font-bold">{t("welcome")}</h1>
 
       {/* Mainnet Banner */}
       <MainnetBanner />
 
+      {/* Balance */}
       <BalanceCard balance={balance} />
 
-      <TapLogo tapsLeft={tapsLeft} onTap={handleTap} />
+      {/* Tap Logo */}
+      <div className="flex justify-center w-full">
+        <TapLogo tapsLeft={tapsLeft} onTap={handleTap} />
+      </div>
 
-      <AdsCard />
+      {/* Ads & Referrals */}
+      <div className="flex flex-col sm:flex-row w-full gap-4">
+        <AdsCard />
+        <ReferralCard />
+      </div>
 
-      <ReferralCard />
-
+      {/* Upgrade Button */}
       <button
         onClick={() => setShowUpgrade(true)}
-        className="px-6 py-3 rounded-2xl bg-yellow-500 text-white font-semibold"
+        className="px-4 py-2 rounded-2xl bg-yellow-500 text-white font-semibold w-full sm:w-auto"
       >
         {t("upgrade")}
       </button>
 
       <UpgradeModal open={showUpgrade} onClose={() => setShowUpgrade(false)} />
 
-      <div className="mt-4">
+      {/* Language Switch */}
+      <div className="mt-2">
         <button
           onClick={() => setLang(lang === "en" ? "sw" : "en")}
           className="text-sm underline text-gray-500"
