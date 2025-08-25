@@ -6,6 +6,7 @@ import BalanceCard from "@/components/BalanceCard";
 import AdsCard from "@/components/AdsCard";
 import ReferralCard from "@/components/ReferralCard";
 import UpgradeModal from "@/components/UpgradeModal";
+import MainnetBanner from "@/components/MainnetBanner";
 
 export default function Dashboard() {
   const { t, lang, setLang } = useLanguage();
@@ -23,6 +24,9 @@ export default function Dashboard() {
   return (
     <div className="flex flex-col items-center p-6 text-center space-y-6">
       <h1 className="text-2xl font-bold">{t("welcome")}</h1>
+
+      {/* Mainnet Banner */}
+      <MainnetBanner />
 
       <BalanceCard balance={balance} />
 
