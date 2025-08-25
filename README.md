@@ -1,7 +1,7 @@
 # 🌍 Ndoto Token WebApp (Testnet)
 
-Hii ni **Telegram MiniApp** ya Ndoto Token (NDT) 🚀  
-Iliyotengenezwa kwa **Next.js 14 + TailwindCSS + TypeScript**  
+Hii ni **Telegram MiniApp** ya **Ndoto Token (NDT)** 🚀  
+Iliyotengenezwa kwa **Next.js 14 + TailwindCSS + TypeScript**.
 
 ---
 
@@ -11,8 +11,10 @@ Iliyotengenezwa kwa **Next.js 14 + TailwindCSS + TypeScript**
 - Connect Wallet (TON Testnet)
 - Referrals & Ads Rewards
 - Airdrop & Promotions
+- Upgrade Levels (Level 0→1→2)
 - Admin Panel (manage ads, taps, referrals, claim, mainnet switch)
 - Tokenomics 100% = **50,000,000,000 NDT**
+- ⚡ **Mainnet coming soon!**
 
 ---
 
@@ -26,6 +28,16 @@ Iliyotengenezwa kwa **Next.js 14 + TailwindCSS + TypeScript**
 | Staking Rewards | 15% | 7,500,000,000 |
 | Admin / Development | 13% | 6,500,000,000 |
 | Liquidity / Listings | 10% | 5,000,000,000 |
+
+---
+
+## 🎮 Tap-to-Earn Levels
+
+| Level | Taps per day | TON Required |
+|-------|--------------|--------------|
+| 0     | 5            | Free         |
+| 1     | 25           | 0.5 TON      |
+| 2     | 60           | 1.5 TON      |
 
 ---
 
