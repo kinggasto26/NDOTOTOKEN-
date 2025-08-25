@@ -1,0 +1,17 @@
+export default function ReferralCard() {
+  const handleInvite = () => {
+    alert("Referral link copied! (demo)");
+  };
+
+  return (
+    <div className="bg-gray-200 p-4 rounded-xl w-full max-w-sm">
+      <p className="font-semibold">Referrals: 0</p>
+      <button
+        onClick={handleInvite}
+        className="mt-2 px-4 py-2 rounded-lg bg-purple-600 text-white"
+      >
+        Invite Friends
+      </button>
+    </div>
+  );
+}
